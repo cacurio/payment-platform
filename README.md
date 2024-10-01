@@ -97,7 +97,7 @@ cdk bootstrap
 Run the following command to synthesize the cdk stack.
 
 ```bash
-cdk synth
+cdk synth --all
 ```
 
 ## cdk deploy
@@ -105,7 +105,7 @@ cdk synth
 Run the following command to deploy the cdk stack.
 
 ```bash
-cdk deploy
+cdk deploy --all
 ```
 
 ## improvements
