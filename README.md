@@ -108,8 +108,6 @@ Run the following command to deploy the cdk stack.
 cdk deploy
 ```
 
-![deploy](assets/deploy.png)
-
 ## improvements
 
 - Add more tests
