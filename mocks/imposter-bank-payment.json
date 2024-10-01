@@ -1,0 +1,124 @@
+{
+    "port": 4545,
+    "protocol": "http",
+    "stubs": [
+        {
+            "predicates": [
+                {
+                    "equals": {
+                        "method": "POST",
+                        "path": "/process-payment",
+                        "headers": {
+                            "Content-Type": "application/json"
+                        }
+                    }
+                },
+                {
+                    "matches": {
+                        "body": {
+                            "cardNumber": "[0-9]{16}",
+                            "expiryMonth": "(0[1-9]|1[0-2])",
+                            "expiryYear": "[0-9]{4}",
+                            "amount": "[0-9]+(\\.[0-9]{1,2})?",
+                            "currency": "[A-Z]{3}"
+                        }
+                    }
+                }
+            ],
+            "responses": [
+                {
+                    "is": {
+                        "statusCode": 200,
+                        "headers": {
+                            "Content-Type": "application/json"
+                        },
+                        "body": {
+                            "authorizationCode": "${RANDOM_STRING}",
+                            "status": "APPROVED",
+                            "message": "Transaction successful"
+                        }
+                    },
+                    "_behaviors": {
+                        "wait": 100,
+                        "decorate": "function (request, response) { if (Math.random() < 0.1) { response.body.status = 'DECLINED'; response.body.message = 'Insufficient funds'; } response.body.authorizationCode = (Math.random().toString(36).substr(2, 10)).toUpperCase(); }"
+                    }
+                }
+            ]
+        },
+        {
+            "predicates": [
+                {
+                    "equals": {
+                        "method": "POST",
+                        "path": "/process-refund",
+                        "headers": {
+                            "Content-Type": "application/json"
+                        }
+                    }
+                },
+                {
+                    "matches": {
+                        "body": {
+                            "originalTransactionId": ".+",
+                            "amount": "[0-9]+(\\.[0-9]{1,2})?",
+                            "currency": "[A-Z]{3}"
+                        }
+                    }
+                }
+            ],
+            "responses": [
+                {
+                    "is": {
+                        "statusCode": 200,
+                        "headers": {
+                            "Content-Type": "application/json"
+                        },
+                        "body": {
+                            "refundId": "${RANDOM_STRING}",
+                            "status": "APPROVED",
+                            "message": "Refund processed successfully"
+                        }
+                    },
+                    "_behaviors": {
+                        "wait": 100,
+                        "decorate": "function (request, response) { if (Math.random() < 0.05) { response.body.status = 'DECLINED'; response.body.message = 'Refund not allowed'; } response.body.refundId = 'REF-' + (Math.random().toString(36).substr(2, 10)).toUpperCase(); }"
+                    }
+                }
+            ]
+        },
+        {
+            "predicates": [
+                {
+                    "or": [
+                        {
+                            "equals": {
+                                "method": "POST",
+                                "path": "/process-payment"
+                            }
+                        },
+                        {
+                            "equals": {
+                                "method": "POST",
+                                "path": "/process-refund"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "responses": [
+                {
+                    "is": {
+                        "statusCode": 400,
+                        "headers": {
+                            "Content-Type": "application/json"
+                        },
+                        "body": {
+                            "status": "ERROR",
+                            "message": "Invalid data format"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
