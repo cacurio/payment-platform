@@ -108,6 +108,14 @@ Run the following command to deploy the cdk stack.
 cdk deploy --all
 ```
 
+## cdk destroy
+
+Run the following command to destroy the cdk stack.
+
+```bash
+cdk destroy --all
+```
+
 ## improvements
 
 - Add more tests
